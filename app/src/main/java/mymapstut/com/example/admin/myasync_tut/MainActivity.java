@@ -1,6 +1,8 @@
 package mymapstut.com.example.admin.myasync_tut;
 
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
@@ -11,12 +13,14 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import mymapstut.com.example.admin.myasync_tut.services.Myservice;
+
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<String> {
 
     TextView output;
     Button sendBtn;
     Button clearBtn;
-
+    public static final String JSON_URL ="http://560057.youcanlearnit.net/services/json/itemsfeed.php";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,7 +46,18 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 //third is the loader callback method = this
                 // Try restartLoader method(real reload) or initLoader (no restart of thread bypass
                 //do in background)
-                getSupportLoaderManager().initLoader(0,null,MainActivity.this).forceLoad();
+              //  getSupportLoaderManager().initLoader(0,null,MainActivity.this).forceLoad();
+                ////////////////////////////////////////////////////////////////////////////
+
+                /////----Intent service-------////////
+                //1.Instantiate Intent Myservice is the second param instantiate servece
+                //2.pass in data
+                //3.Start the service with intent object
+                Intent intent = new Intent(MainActivity.this, Myservice.class);
+                intent.setData(Uri.parse(JSON_URL));
+                startService(intent);
+
+
 
             }
         });
