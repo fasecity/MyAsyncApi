@@ -1,12 +1,15 @@
 package mymapstut.com.example.admin.myasync_tut;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -17,14 +20,38 @@ import mymapstut.com.example.admin.myasync_tut.services.Myservice;
 
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<String> {
 
+    //instance vars---------------------------------------------------------------------------------
+    //Broadcast reciver arch vars: this recives the broadcat
+    private BroadcastReceiver mBroadcastreciver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // 1.get string of payload msg with this intent.getExta
+            String message = intent.getStringExtra(Myservice.MY_SERVICE_PAYLOAD);
+            //put in output
+            output.append(message + "\n");
+            //2. make reciver in oncCreate method
+        }
+    };
+    //----------------------
     TextView output;
     Button sendBtn;
     Button clearBtn;
     public static final String JSON_URL ="http://560057.youcanlearnit.net/services/json/itemsfeed.php";
+   //----------------------------------------------------------------------------------------------
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //-------------Bradcast register and listner-----------//////
+        //3.Get instange and register reciver link filter with
+        LocalBroadcastManager.getInstance(getApplicationContext())
+                .registerReceiver(mBroadcastreciver,
+                        new IntentFilter(Myservice.MY_SERVICE_MSG));
+
+        //-------------Bradcast-----------//////
+
 
         sendBtn = (Button) findViewById(R.id.sendBtn);
         clearBtn = (Button) findViewById(R.id.clearBtn);
@@ -57,8 +84,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 intent.setData(Uri.parse(JSON_URL));
                 startService(intent);
 
-
-
             }
         });
         clearBtn.setOnClickListener(new View.OnClickListener() {
@@ -69,7 +94,16 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         });
 
     }
-////////////////////////////////////////////----asyncTask Loader---////////////////////////////////
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        LocalBroadcastManager.getInstance(getApplicationContext())
+                .unregisterReceiver(mBroadcastreciver);
+
+
+    }
+    ////////////////////////////////////////////----asyncTask Loader---////////////////////////////////
 
 ////////////////////////////////////////////----asyncTask Loader overrides---///////////////////////
     @Override//remeber change types default is Object.
@@ -116,35 +150,35 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
 ////////////////////////////////////////////----asyncTask Loader ---///////////////////////////////
 ///Regular async task starts here:
-    //needs parameters (params,progress,result) needs implemted methods
-    //String is the type in abstract method and Void matches up with return.
-    //Do in background method gets execute stings in array form
-//    private class MyAsyncTask extends AsyncTask<String,String,Void>{
-//
-//        @Override
-//        protected Void doInBackground(String... params) {
-//            for (String index : params) {
-//                //publish progreess shares result with rest of app
-//                publishProgress(index);
-//                //thread sleep slows shit down for experimental purposes
-//                try {
-//                    Thread.sleep(1000);
-//                } catch (InterruptedException e) {
-//                    e.printStackTrace();
-//                }
-//
-//
-//            }
-//
-//            return null;
-//        }
-//
-//        @Override// this method runs in the foreground
-//        //matches thes second String generic value in the <>
-//        //values will be passed in as an array
-//        protected void onProgressUpdate(String... values) {
-//            super.onProgressUpdate(values);
-//            output.append(values[0] + "\n");
-//        }
-//    }
+//    needs parameters (params,progress,result) needs implemted methods
+//    String is the type in abstract method and Void matches up with return.
+//    Do in background method gets execute stings in array form
+    private class MyAsyncTask extends AsyncTask<String,String,Void>{
+
+        @Override
+        protected Void doInBackground(String... params) {
+            for (String index : params) {
+                //publish progreess shares result with rest of app
+                publishProgress(index);
+                //thread sleep slows shit down for experimental purposes
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+
+            }
+
+            return null;
+        }
+
+        @Override// this method runs in the foreground
+        //matches thes second String generic value in the <>
+        //values will be passed in as an array
+        protected void onProgressUpdate(String... values) {
+            super.onProgressUpdate(values);
+            output.append(values[0] + "\n");
+        }
+    }
 }
