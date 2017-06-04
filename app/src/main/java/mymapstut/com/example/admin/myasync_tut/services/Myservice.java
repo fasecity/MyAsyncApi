@@ -7,10 +7,16 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.google.gson.Gson;
+
+import java.io.IOException;
+
+import mymapstut.com.example.admin.myasync_tut.models.DataItem;
+import mymapstut.com.example.admin.myasync_tut.utils.HttpHelper;
 
 
 public class Myservice extends IntentService {
-  //instance vars:
+  //--------------------------------------instance vars:--------------------------------------------
 
     public static final String TAG ="MyService";
 
@@ -32,13 +38,34 @@ public class Myservice extends IntentService {
 
         //loging stuff
         Log.i(TAG, "HandleIntent " + uri.toString());
+        ////----download url method--- PUt response in intent///
+        String response;
+        try {
+            response =
+                    HttpHelper.downloadUrl(uri.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
+        //--------------------------------------gson----------------------------///////
+        // transfer response using gson baby----
+        //1.create gson class obj
+        Gson gson = new Gson();
+
+        //2. dececlare array of dataItems class
+        //get the response url from above,and an array of the class you wanna parse to
+        DataItem[] dataItems = gson.fromJson(response,DataItem[].class);
+        //--------------------------------------gson----------------------------///////
+
+        //----------------------------------
+        ////----download url method---///
 
         //1.Intent Broadcast make intent method and pass in action myservice message
         //my service msg is the classifier that links with reciver
         Intent myIntentMessage = new Intent(MY_SERVICE_MSG);
 
-        //2. pass payload as putExtra; Payload is the info
-        myIntentMessage.putExtra(MY_SERVICE_PAYLOAD,"service all done bud");
+        //2. pass payload as putExtra; Payload is the info send data Items insead of raw response
+        myIntentMessage.putExtra(MY_SERVICE_PAYLOAD,dataItems);
 
         //3.now to send msg make instance of localbradcast manager with get instance method
         //use getappcontext or this

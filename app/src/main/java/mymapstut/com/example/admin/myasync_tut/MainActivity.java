@@ -15,21 +15,32 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import mymapstut.com.example.admin.myasync_tut.models.DataItem;
 import mymapstut.com.example.admin.myasync_tut.services.Myservice;
 import mymapstut.com.example.admin.myasync_tut.utils.NetworkHelper;
 
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<String> {
 
-    //instance vars---------------------------------------------------------------------------------
+    //------------------------------------instance vars---------------------------------------------
     //Broadcast reciver arch vars: this recives the broadcat
     private BroadcastReceiver mBroadcastreciver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            // 1.get string of payload msg with this intent.getExta
-            String message = intent.getStringExtra(Myservice.MY_SERVICE_PAYLOAD);
+            // 1.get string/dataitem[] of payload msg with this intent.getExta
+            ///String message = intent.getStringExtra(Myservice.MY_SERVICE_PAYLOAD);--depricated
+            //Intead of a string well get back a dataitem obj using parcable extra method with
+            //myservice class payload, then iterate using a foreach
+            DataItem[] dataItems = (DataItem[])
+                    intent.getParcelableArrayExtra(Myservice.MY_SERVICE_PAYLOAD);
+
+            for (DataItem items:dataItems) {
+                output.append(items.getItemName() + "\n");
+
+            }
             //put in output
-            output.append(message + "\n");
+           // output.append(dataItems + "\n"); //depricated use for each loop above
             //2. make reciver in oncCreate method
         }
     };
@@ -39,9 +50,10 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     private Button sendBtn;
     private Button clearBtn;
     public static final String JSON_URL ="http://560057.youcanlearnit.net/services/json/itemsfeed.php";
-   //----------------------------------------------------------------------------------------------
+    //------------------------------------instance vars---------------------------------------------
 
-    @Override
+
+    @Override//---------------------onCreate method-------------------------------------------
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -52,7 +64,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 .registerReceiver(mBroadcastreciver,
                         new IntentFilter(Myservice.MY_SERVICE_MSG));
 
-        //-------------Bradcast-----------//////
+        //-------------Broadcast register------------------------//////
 
 
         sendBtn = (Button) findViewById(R.id.sendBtn);
@@ -82,9 +94,15 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 //1.Instantiate Intent Myservice is the second param instantiate servece
                 //2.pass in data
                 //3.Start the service with intent object
-                Intent intent = new Intent(MainActivity.this, Myservice.class);
-                intent.setData(Uri.parse(JSON_URL));
-                startService(intent);
+                if (networkOk) {
+                    Intent intent = new Intent(MainActivity.this, Myservice.class);
+                    intent.setData(Uri.parse(JSON_URL));
+                    startService(intent);
+                }
+                else {
+                    Toast.makeText(MainActivity.this, "Network not avail",
+                            Toast.LENGTH_SHORT).show();
+                }
 
 
             }
