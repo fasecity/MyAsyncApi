@@ -17,6 +17,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import mymapstut.com.example.admin.myasync_tut.services.Myservice;
+import mymapstut.com.example.admin.myasync_tut.utils.NetworkHelper;
 
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<String> {
 
@@ -33,9 +34,10 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         }
     };
     //----------------------
-    TextView output;
-    Button sendBtn;
-    Button clearBtn;
+    private  boolean networkOk;
+    private TextView output;
+    private Button sendBtn;
+    private Button clearBtn;
     public static final String JSON_URL ="http://560057.youcanlearnit.net/services/json/itemsfeed.php";
    //----------------------------------------------------------------------------------------------
 
@@ -84,6 +86,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 intent.setData(Uri.parse(JSON_URL));
                 startService(intent);
 
+
             }
         });
         clearBtn.setOnClickListener(new View.OnClickListener() {
@@ -92,6 +95,10 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 output.setText("");
             }
         });
+
+        //make sure network is okay
+        networkOk = NetworkHelper.HasNetworkAcess(this);
+        output.append("network avialible :" + networkOk + "\n");
 
     }
 
