@@ -32,12 +32,18 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             ///String message = intent.getStringExtra(Myservice.MY_SERVICE_PAYLOAD);--depricated
             //Intead of a string well get back a dataitem obj using parcable extra method with
             //myservice class payload, then iterate using a foreach
-            DataItem[] dataItems = (DataItem[])
-                    intent.getParcelableArrayExtra(Myservice.MY_SERVICE_PAYLOAD);
+            if (intent.hasExtra(Myservice.MY_SERVICE_PAYLOAD)) {
+                DataItem[] dataItems = (DataItem[])
+                        intent.getParcelableArrayExtra(Myservice.MY_SERVICE_PAYLOAD);
 
-            for (DataItem items:dataItems) {
-                output.append(items.getItemName() + "\n");
+                for (DataItem items : dataItems) {
+                    output.append(items.getItemName() + "\n");
 
+                }
+            }
+            else if (intent.hasExtra(Myservice.MY_SERVICE_EXEPTION)){
+                String msg = intent.getStringExtra(Myservice.MY_SERVICE_EXEPTION);
+                Toast.makeText(context, msg , Toast.LENGTH_SHORT).show();
             }
             //put in output
            // output.append(dataItems + "\n"); //depricated use for each loop above
@@ -50,6 +56,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     private Button sendBtn;
     private Button clearBtn;
     public static final String JSON_URL ="http://560057.youcanlearnit.net/services/json/itemsfeed.php";
+    public static final String JSON_URL_SECURED= "http://560057.youcanlearnit.net/secured/json/itemsfeed.php";
     //------------------------------------instance vars---------------------------------------------
 
 
@@ -96,7 +103,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 //3.Start the service with intent object
                 if (networkOk) {
                     Intent intent = new Intent(MainActivity.this, Myservice.class);
-                    intent.setData(Uri.parse(JSON_URL));
+                    intent.setData(Uri.parse(JSON_URL_SECURED));
                     startService(intent);
                 }
                 else {

@@ -1,5 +1,7 @@
 package mymapstut.com.example.admin.myasync_tut.utils;
 
+import android.util.Base64;
+
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -19,13 +21,21 @@ public class HttpHelper {
      * @return
      * @throws IOException
      */
-    public static String downloadUrl(String address) throws IOException {
+    public static String downloadUrl(String address,String user,String passcode) throws IOException {
 
         InputStream is = null;
+        //login for basic auth
+        byte[] loginBytes = (user + ":" + passcode).getBytes();
+        StringBuilder loginBuilder = new StringBuilder().append("Basic ")
+                .append(Base64.encodeToString(loginBytes,Base64.DEFAULT));
+        ////
         try {
 
             URL url = new URL(address);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            //login basic auth
+            conn.addRequestProperty("Authorization",loginBuilder.toString());
+            //
             conn.setReadTimeout(10000);
             conn.setConnectTimeout(15000);
             conn.setRequestMethod("GET");

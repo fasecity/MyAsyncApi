@@ -23,6 +23,8 @@ public class Myservice extends IntentService {
     //these will be used as keys for listening and identifying in activity and one for msg
     public static final String MY_SERVICE_MSG  ="MY_SERVICE_MESSAGE";
     public static final String MY_SERVICE_PAYLOAD  ="My_SERVICE_PAYLOAD";
+    public static final String MY_SERVICE_EXEPTION  ="MY_SERVICE_Exeption";
+
 
 
     //remeber register service in mainfest
@@ -42,9 +44,17 @@ public class Myservice extends IntentService {
         String response;
         try {
             response =
-                    HttpHelper.downloadUrl(uri.toString());
+                    HttpHelper.downloadUrl(uri.toString(),"nadias","NadiasPassword");
         } catch (IOException e) {
             e.printStackTrace();
+            Intent myIntentMessage = new Intent(MY_SERVICE_MSG);
+            myIntentMessage.putExtra(MY_SERVICE_EXEPTION,e.getMessage());
+
+            LocalBroadcastManager manager = LocalBroadcastManager
+                    .getInstance(getApplicationContext());
+            //4. send broadcast
+            manager.sendBroadcast(myIntentMessage);
+
             return;
         }
         //--------------------------------------gson----------------------------///////
